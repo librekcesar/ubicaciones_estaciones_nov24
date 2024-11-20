@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8" />
+<head>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.0/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
+    <!-- Estas lineas son para que funcione en GitHub -->
+    <link rel="stylesheet" href="https://librekcesar.github.io/busca_zipcodes4/leaflet-search-master/leaflet-search-master/src/leaflet-search.css" />
+    <script src="https://librekcesar.github.io/busca_zipcodes4/leaflet-search-master/leaflet-search-master/src/leaflet-search.js"></script>
+    <style>
+        #map {
+            width: 100%;
+            height: 900px;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <!-- Descomentar este bloque de codigo en el github -->
+    <script src="https://unpkg.com/leaflet@1.3.0/dist/leaflet.js"></script>
+    <script src="https://librekcesar.github.io/busca_zipcodes4/leaflet-search-master/leaflet-search-master/src/leaflet-search.js"></script>
+    <script src="estaciones_sps_copia.js"></script> <!-- Asegúrate de que este archivo contiene el GeoJSON de puntos -->
+    <script src="estaciones_propias_copia.js"></script>
+
+    <script>
+    // Suponiendo que 'puntos_geojson.js' define una variable 'data' con el GeoJSON de puntos
+    var data = puntosGeojson;
+    var data2 = puntosGeojson2;
+
+    // Crear el mapa centrado en una ubicación específica
+    var map = new L.Map('map', {zoom: 8, center: new L.latLng([19.51971, -99.148]) });
+
+    // Añadir capa de tiles al mapa
+    map.addLayer(new L.TileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'));
+
+    // Añadir los puntos del GeoJSON al mapa como marcadores
+    var featuresLayer = new L.GeoJSON(data, {
+        pointToLayer: function (feature, latlng) {
+            return L.circleMarker(latlng, {
+                radius: 10,
+                fillColor: "#1578D5",
+                color: "#DC1EEC",
+                weight: 1,
+                opacity: 1,
+                fillOpacity: 0.7
+            });
+        },
+        onEachFeature: function (feature, layer) {
+            var popupContent = '<h4 style="color:' + feature.properties.color + '">' +
+                               'Station name: ' + feature.properties.Estacion + '</h4>' +
+                               'Station code: ' + feature.properties.Direccion;
+                               
+            layer.bindPopup(popupContent);
+        }
+    });
+
+    
+    // Añadir los puntos de la segunda capa
+    var featuresLayer2 = new L.GeoJSON(data2, {
+        pointToLayer: function (feature, latlng) {
+            return L.circleMarker(latlng, {
+                radius: 10,
+                fillColor: "#D20CD8",
+                color: "#0C44D8",
+                weight: 1,
+                opacity: 1,
+                fillOpacity: 0.7
+            });
+        },
+        onEachFeature: function (feature, layer) {
+            var popupContent = '<h4 style="color:' + feature.properties.color + '">' +
+                               'Station name: ' + feature.properties.Estacion + '</h4>' +
+                               'Station code: ' + feature.properties.Direccion;
+                               
+            layer.bindPopup(popupContent);
+        }
+    });
+
+    var overlayMaps = {
+            "Estaciones propias": featuresLayer,
+            "Estaciones SP": featuresLayer2
+        };
+
+        L.control.layers(overlayMaps).addTo(map);
+
+    //map.addLayer(featuresLayer);
+
+    // Configurar el control de búsqueda
+    var searchControl = new L.Control.Search({
+        layer: featuresLayer,
+        propertyName: 'Estacion', // Atributo que se usará en el buscador
+        marker: false,
+        moveToLocation: function (latlng, title, map) {
+            map.setView(latlng, 12); // Ajustar el nivel de zoom al ubicar la búsqueda
+        }
+    });
+
+    // Eventos de búsqueda
+    searchControl.on('search:locationfound', function (e) {
+        e.layer.setStyle({fillColor: '#9D160B', color: '#DA1212'});
+        if (e.layer._popup) {
+            e.layer.openPopup();
+        }
+    }).on('search:collapsed', function (e) {
+        featuresLayer.eachLayer(function (layer) {
+            featuresLayer.resetStyle(layer);
+        });
+    });
+
+    map.addControl(searchControl);  // Inicializar el control de búsqueda
+
+//a partir de aqui intento de codigo para controlar el buscador de la segunda capa 
+var searchControl2 = new L.Control.Search({
+            layer: featuresLayer2,
+            propertyName: 'Estacion',
+            marker: false,
+            moveToLocation: function (latlng, title, map) {
+                //var zoom = map.getBoundsZoom(latlng.layer.getBounds()); ///esta linea puede causar el error
+                map.setView(latlng, 12);  //aca puede estar el error
+            }
+        });
+
+        searchControl2.on('search:locationfound', function (e) {
+            e.layer.setStyle({ fillColor: '#9D160B', color: '#60DE1D' });
+            if (e.layer._popup)
+                e.layer.openPopup();
+        }).on('search:collapsed', function (e) {
+            featuresLayer2.eachLayer(function (layer) {
+                featuresLayer2.resetStyle(layer);
+            });
+        });
+
+        map.addControl(searchControl2);
+
+
+
+    </script>
+</body>
+</html>
