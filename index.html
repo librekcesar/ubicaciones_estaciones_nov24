@@ -48,8 +48,8 @@
         },
         onEachFeature: function (feature, layer) {
             var popupContent = '<h4 style="color:' + feature.properties.color + '">' +
-                               'Station name: ' + feature.properties.Estacion + '</h4>' +
-                               'Station code: ' + feature.properties.Direccion;
+                               'Station code: ' + feature.properties.Estacion + '</h4>' +
+                               'Dirección: ' + feature.properties.Direccion;
                                
             layer.bindPopup(popupContent);
         }
@@ -70,8 +70,8 @@
         },
         onEachFeature: function (feature, layer) {
             var popupContent = '<h4 style="color:' + feature.properties.color + '">' +
-                               'Station name: ' + feature.properties.Estacion + '</h4>' +
-                               'Station code: ' + feature.properties.Direccion;
+                               'Station code: ' + feature.properties.Estacion + '</h4>' +
+                               'Dirección: ' + feature.properties.Direccion;
                                
             layer.bindPopup(popupContent);
         }
